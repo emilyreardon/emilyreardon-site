@@ -31,4 +31,4 @@ Intentionally simple. Structured for durability, legibility, and participation �
 I collaborate across academia, nonprofits, public institutions, and mission-driven technology.
 
 → emilyreardon.com 
-→ emily.reardon@gmail.com
+→ emily.reardon@gmail.org
