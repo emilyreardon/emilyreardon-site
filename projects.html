@@ -539,14 +539,18 @@
       imagePaths:  ["images/personal/EmilyReardon_AIAsIntimacyProcess"],
       imagePairPaths: [
         "images/personal/EmilyReardon_AIAsIntimacy.png",
-        [
-          "images/personal/EmilyReardon_AIAsIntimacy_OscFace.png",
-          "images/personal/EmilyReardon_AIAsIntimacy_OscBody.png"
-        ],
-        [
-          { type: "video", sources: ["images/personal/EmilyReardon_AIAsIntimacy_Prototype.webm", "images/personal/EmilyReardon_AIAsIntimacy_Prototype.mp4"] },
-          { type: "video", sources: ["images/personal/EmilyReardon_AIAsIntimacy_Animated.webm", "images/personal/EmilyReardon_AIAsIntimacy_Animated.mp4"] }
-        ]
+        {
+          type: "vstack",
+          rows: [
+            [
+              "images/personal/EmilyReardon_AIAsIntimacy_OscFace.png",
+              "images/personal/EmilyReardon_AIAsIntimacy_OscBody.png"
+            ],
+            [
+              { type: "video", sources: ["images/personal/EmilyReardon_AIAsIntimacy_Animated.webm", "images/personal/EmilyReardon_AIAsIntimacy_Animated.mp4"] }
+            ]
+          ]
+        }
       ],
       gifPaths:    null
     },
@@ -831,6 +835,31 @@
     const colData = columns.map(function(specOrArray) {
       const col = document.createElement('div');
       col.className = 'project-image-pair-col';
+
+      /* vstack: { type: 'vstack', rows: [[item, item], [item]] }
+         Renders multiple horizontal rows stacked vertically within one column. */
+      if (specOrArray && typeof specOrArray === 'object' && !Array.isArray(specOrArray) && specOrArray.type === 'vstack') {
+        col.style.cssText = 'display:flex;flex-direction:column;gap:0.75rem;overflow:hidden;';
+        const vstackRows = specOrArray.rows.map(function(rowSpec) {
+          const rowItems = Array.isArray(rowSpec) ? rowSpec : [rowSpec];
+          const rowDiv = document.createElement('div');
+          rowDiv.style.cssText = 'display:flex;gap:0.75rem;flex-shrink:0;overflow:hidden;align-items:flex-start;';
+          const elements = rowItems.map(function(spec) {
+            const el = buildPairElement(spec, altText);
+            el.style.visibility = 'hidden';
+            el.style.display = 'block';
+            el.style.flexShrink = '0';
+            rowDiv.appendChild(el);
+            return el;
+          });
+          col.appendChild(rowDiv);
+          return { rowDiv: rowDiv, elements: elements };
+        });
+        wrap.appendChild(col);
+        const allEls = vstackRows.reduce(function(a, rd) { return a.concat(rd.elements); }, []);
+        return { col: col, elements: allEls, isVstack: true, vstackRows: vstackRows };
+      }
+
       const items = Array.isArray(specOrArray) ? specOrArray : [specOrArray];
       if (items.length > 1) col.classList.add('project-image-pair-stack');
       const elements = items.map(function(spec) {
@@ -854,14 +883,32 @@
     function layout() {
       const ks = [];
       for (let i = 0; i < colData.length; i++) {
-        let sumInv = 0;
-        const els = colData[i].elements;
-        for (let j = 0; j < els.length; j++) {
-          const r = naturalRatio(els[j]);
-          if (!r) return;
-          sumInv += 1 / r;
+        if (colData[i].isVstack) {
+          /* K for a vstack: treat each row as one stacked item whose effective
+             aspect ratio is the sum of its items' aspect ratios (side-by-side). */
+          let sumInv = 0;
+          const rows = colData[i].vstackRows;
+          for (let r = 0; r < rows.length; r++) {
+            let rowAspect = 0;
+            const rowEls = rows[r].elements;
+            for (let j = 0; j < rowEls.length; j++) {
+              const ratio = naturalRatio(rowEls[j]);
+              if (!ratio) return;
+              rowAspect += ratio;
+            }
+            sumInv += 1 / rowAspect;
+          }
+          ks.push(1 / sumInv);
+        } else {
+          let sumInv = 0;
+          const els = colData[i].elements;
+          for (let j = 0; j < els.length; j++) {
+            const r = naturalRatio(els[j]);
+            if (!r) return;
+            sumInv += 1 / r;
+          }
+          ks.push(1 / sumInv);
         }
-        ks.push(1 / sumInv);
       }
       const gapPx = 12;
       const containerWidth = wrap.clientWidth || (wrap.parentElement && wrap.parentElement.clientWidth) || 0;
@@ -871,7 +918,27 @@
       const height = availableWidth / sumK;
       colData.forEach(function(cd, i) {
         cd.col.style.flex = '0 0 auto';
-        cd.col.style.width = (height * ks[i]) + 'px';
+        const colW = height * ks[i];
+        cd.col.style.width = colW + 'px';
+
+        if (cd.isVstack) {
+          /* Distribute available column height across rows proportionally */
+          const rows = cd.vstackRows;
+          const innerGaps = gapPx * (rows.length - 1);
+          const availH = height - innerGaps;
+          const rowAspects = rows.map(function(rd) {
+            return rd.elements.reduce(function(sum, el) { return sum + naturalRatio(el); }, 0);
+          });
+          const sumInvRow = rowAspects.reduce(function(sum, ra) { return sum + 1 / ra; }, 0);
+          rows.forEach(function(rd, ri) {
+            const rowH = availH / (rowAspects[ri] * sumInvRow);
+            rd.rowDiv.style.height = rowH + 'px';
+            rd.elements.forEach(function(el) {
+              el.style.height = rowH + 'px';
+              el.style.width = (rowH * naturalRatio(el)) + 'px';
+            });
+          });
+        }
       });
       if (!revealed) {
         revealed = true;
