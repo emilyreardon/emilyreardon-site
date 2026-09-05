@@ -1345,7 +1345,7 @@
     backLink.className = 'project-back-link';
     backLink.textContent = '\u2190 All projects';
     const main = document.getElementById('projects-list');
-    main.insertBefore(backLink, main.firstChild);
+    if (!main.querySelector('.project-back-link')) main.insertBefore(backLink, main.firstChild);
     const focusBtn = document.querySelector('.project-card[data-id="' + hash + '"] .project-open-btn');
     if (focusBtn) focusBtn.remove();
   })();
@@ -1369,7 +1369,7 @@
     backLink.className = 'project-back-link';
     backLink.textContent = '\u2190 All projects';
     const main = document.getElementById('projects-list');
-    main.insertBefore(backLink, main.firstChild);
+    if (!main.querySelector('.project-back-link')) main.insertBefore(backLink, main.firstChild);
 
     const focusBtn = document.querySelector('.project-card[data-id="' + hash + '"] .project-open-btn');
     if (focusBtn) focusBtn.remove();
