@@ -454,6 +454,46 @@
     .audio-scrubber-wrap { flex:1; min-width:0; }
     .audio-scrubber { width:100%; accent-color:#111; cursor:pointer; display:block; }
     .audio-time { flex-shrink:0; color:#555; font-size:0.72rem; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .project-open-btn {
+      float: right;
+      font-size: 0.78rem;
+      color: #aaa;
+      text-decoration: none;
+      line-height: 1.3;
+      margin-left: 1rem;
+      transition: color 0.18s ease;
+    }
+    .project-open-btn:hover { color: #000; }
+    body.project-focus .filter-bar { display: none; }
+    body.project-focus .project-back-link {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: #555;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    body.project-focus .project-back-link:hover { color: #000; }
+    .project-open-btn {
+      float: right;
+      font-size: 0.78rem;
+      color: #aaa;
+      text-decoration: none;
+      line-height: 1.3;
+      margin-left: 1rem;
+      transition: color 0.18s ease;
+    }
+    .project-open-btn:hover { color: #000; }
+    body.project-focus .filter-bar { display: none; }
+    body.project-focus .project-back-link {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: #555;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    body.project-focus .project-back-link:hover { color: #000; }
   </style>
 </head>
 <body>
@@ -1137,12 +1177,25 @@
       const card = document.createElement('article');
       card.className = 'project-card';
       card.dataset.type = p.type;
+      card.dataset.id = p.id;
+      card.dataset.id = p.id;
 
 
       /* title */
       const title = document.createElement('h2');
       title.className = 'project-title';
-      title.textContent = p.title;
+
+      const openBtn = document.createElement('a');
+      openBtn.href = 'projects.html#' + p.id;
+      openBtn.target = '_blank';
+      openBtn.rel = 'noopener';
+      openBtn.className = 'project-open-btn';
+      openBtn.title = 'Open in new window';
+      openBtn.setAttribute('aria-label', 'Open ' + p.title + ' in new window');
+      openBtn.textContent = '\u2197';
+      title.appendChild(openBtn);
+
+      title.prepend(document.createTextNode(p.title));
       card.appendChild(title);
 
 
@@ -1276,6 +1329,51 @@
 
 
   renderProjects();
+
+  (function () {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const match = projects.find(function (p) { return p.id === hash; });
+    if (!match) return;
+    document.body.classList.add('project-focus');
+    document.title = match.title + ' | Emily Reardon';
+    document.querySelectorAll('.project-card').forEach(function (card) {
+      if (card.dataset.id !== hash) card.style.display = 'none';
+    });
+    const backLink = document.createElement('a');
+    backLink.href = 'projects.html';
+    backLink.className = 'project-back-link';
+    backLink.textContent = '\u2190 All projects';
+    const main = document.getElementById('projects-list');
+    main.insertBefore(backLink, main.firstChild);
+    const focusBtn = document.querySelector('.project-card[data-id="' + hash + '"] .project-open-btn');
+    if (focusBtn) focusBtn.remove();
+  })();
+
+  /* ── Single-project focus mode (URL hash = project id) ── */
+  (function () {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const match = projects.find(function (p) { return p.id === hash; });
+    if (!match) return;
+
+    document.body.classList.add('project-focus');
+    document.title = match.title + ' | Emily Reardon';
+
+    document.querySelectorAll('.project-card').forEach(function (card) {
+      if (card.dataset.id !== hash) card.style.display = 'none';
+    });
+
+    const backLink = document.createElement('a');
+    backLink.href = 'projects.html';
+    backLink.className = 'project-back-link';
+    backLink.textContent = '\u2190 All projects';
+    const main = document.getElementById('projects-list');
+    main.insertBefore(backLink, main.firstChild);
+
+    const focusBtn = document.querySelector('.project-card[data-id="' + hash + '"] .project-open-btn');
+    if (focusBtn) focusBtn.remove();
+  })();
 
 
 
