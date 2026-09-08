@@ -168,7 +168,6 @@
 
 
     .nav-links a {
-      font-weight: bold;
       text-decoration: none;
       color: #000;
       position: relative;
@@ -332,7 +331,6 @@
     .period-dot.visible {
       opacity: 1;
     }
-    .nav-links a { font-family: 'Josefin Sans', sans-serif; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -363,10 +361,10 @@
 
     <nav class="nav-container" id="nav-container">
       <ul class="nav-links">
-        <li><a href="/projects.html">Projects</a></li>
-        <li><a href="/writing.html">Writing</a></li>
-        <li><a href="/teaching.html">Teaching</a></li>
-        <li><a href="/about.html">About</a></li>
+        <li><a href="/projects.html">Projects.</a></li>
+        <li><a href="/writing.html">Writing.</a></li>
+        <li><a href="/teaching.html">Teaching.</a></li>
+        <li><a href="/about.html">About.</a></li>
         <li><a href="/Emily Reardon_CV.pdf" target="_blank">CV</a></li>
       </ul>
     </nav>
@@ -573,6 +571,16 @@
         navContainer.classList.toggle('menu-open');
       });
     }
+  </script>
+  <script>
+    (function() {
+      var fonts = ["'Fraunces', serif", "'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Metamorphous', serif"];
+      var shuffled = fonts.slice().sort(function(){ return Math.random() - 0.5; });
+      document.querySelectorAll('.nav-links a').forEach(function(el, i) {
+        el.style.fontFamily = shuffled[i % shuffled.length];
+        el.style.fontWeight = 'normal';
+      });
+    })();
   </script>
 </body>
 </html>
