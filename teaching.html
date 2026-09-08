@@ -265,14 +265,12 @@
       letter-spacing: 0.06em;
     }
 
-    /* ── Nav period animation ── */
+    /* ── Nav period ── */
     .nav-period {
       display: inline-block;
-      opacity: 0;
-    }
-    @keyframes nav-dot-cycle {
-      0%, 15%, 85%, 100% { opacity: 0; }
-      35%, 65%            { opacity: 1; }
+      font-size: 1.25em;
+      line-height: 0;
+      vertical-align: middle;
     }
     </style>
 </head>
@@ -566,9 +564,26 @@
       var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Fraunces', serif"];
       var styles = ["normal", "normal", "italic"];
       var stored;
-      try { stored = JSON.parse(sessionStorage.getItem('emNav12')); } catch(e) {}
+      try { stored = JSON.parse(sessionStorage.getItem('emNav13')); } catch(e) {}
       if (!stored) stored = {};
       var changed = false;
+
+      function startPeriodAnim(span) {
+        var holdMs = 1200 + Math.floor(Math.random() * 800);
+        var cycleMs = 9000 + Math.floor(Math.random() * 8000);
+        function show() {
+          span.style.transition = 'none';
+          span.style.opacity = '1';
+          setTimeout(hide, holdMs);
+        }
+        function hide() {
+          span.style.transition = 'none';
+          span.style.opacity = '0';
+          setTimeout(show, cycleMs);
+        }
+        setTimeout(show, Math.floor(Math.random() * 3000));
+      }
+
       document.querySelectorAll('.nav-links a').forEach(function(el) {
         var key = el.getAttribute('href') || el.textContent.trim();
         var isPDF = key.indexOf('.pdf') !== -1;
@@ -576,21 +591,17 @@
           var text = el.textContent.trim().replace(/\.$/g, '');
           var chars = [];
           for (var i = 0; i < text.length; i++) chars.push(Math.floor(Math.random() * fonts.length));
-          var periods = [], durs = [], dels = [];
+          var periods = [];
           if (!isPDF) {
             var numP = 1 + Math.floor(Math.random() * 2);
             var tries = 0;
             while (periods.length < numP && tries < 20) {
               var pos = Math.floor(Math.random() * (text.length - 1));
-              if (periods.indexOf(pos) === -1) {
-                periods.push(pos);
-                durs.push((8 + Math.floor(Math.random() * 9)) + 's');
-                dels.push('-' + Math.floor(Math.random() * 10) + 's');
-              }
+              if (periods.indexOf(pos) === -1) periods.push(pos);
               tries++;
             }
           }
-          stored[key] = { chars: chars, periods: periods, durs: durs, dels: dels };
+          stored[key] = { chars: chars, periods: periods };
           changed = true;
         }
         var word = stored[key];
@@ -599,17 +610,15 @@
         for (var i = 0; i < text.length; i++) {
           var fi = word.chars[i % word.chars.length] % fonts.length;
           html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">' + text[i] + '</span>';
-          var pi = (!isPDF && word.periods) ? word.periods.indexOf(i) : -1;
-          if (pi !== -1) {
-            var dur = (word.durs && word.durs[pi]) ? word.durs[pi] : '12s';
-            var del = (word.dels && word.dels[pi]) ? word.dels[pi] : '-5s';
-            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;animation:nav-dot-cycle ' + dur + ' ease ' + del + ' infinite">.</span>';
+          if (!isPDF && word.periods && word.periods.indexOf(i) !== -1) {
+            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;opacity:0">.</span>';
           }
         }
         el.innerHTML = html;
         el.style.visibility = 'visible';
+        el.querySelectorAll('.nav-period').forEach(startPeriodAnim);
       });
-      if (changed) try { sessionStorage.setItem('emNav12', JSON.stringify(stored)); } catch(e) {}
+      if (changed) try { sessionStorage.setItem('emNav13', JSON.stringify(stored)); } catch(e) {}
     })();
   </script>
 </body>
