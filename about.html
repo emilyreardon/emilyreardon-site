@@ -498,9 +498,9 @@
 </script>
   <script>
     (function() {
-      var fonts = ["'Fraunces', serif", "'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Metamorphous', serif"];
+      var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif"];
       var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav6')); } catch(e) {}
+      try { config = JSON.parse(sessionStorage.getItem('emNav7')); } catch(e) {}
       if (!config) {
         var links = document.querySelectorAll('.nav-links a');
         var words = [];
@@ -519,7 +519,7 @@
           words.push({ chars: chars, periods: periods });
         });
         config = { words: words };
-        try { sessionStorage.setItem('emNav6', JSON.stringify(config)); } catch(e) {}
+        try { sessionStorage.setItem('emNav7', JSON.stringify(config)); } catch(e) {}
       }
       document.querySelectorAll('.nav-links a').forEach(function(el, li) {
         var word = config.words[li];
