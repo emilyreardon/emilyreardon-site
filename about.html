@@ -498,37 +498,38 @@
     (function() {
       var fonts = ["'Fraunces', serif", "'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Metamorphous', serif"];
       var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav5')); } catch(e) {}
+      try { config = JSON.parse(sessionStorage.getItem('emNav6')); } catch(e) {}
       if (!config) {
-        var stagger = 2.5, cycle = 32;
         var links = document.querySelectorAll('.nav-links a');
-        var assignments = [], periodPos = [], bolds = [];
+        var words = [];
         links.forEach(function(el) {
-          var t = Math.random() * cycle;
-          var text = el.textContent.replace(/\.$/, '');
+          var text = el.textContent.trim().replace(/\.$/, '');
           var chars = [];
           for (var i = 0; i < text.length; i++) {
-            var offset = (t + i * stagger) % cycle;
-            chars.push(Math.floor(offset / (cycle / fonts.length)));
+            chars.push(Math.floor(Math.random() * fonts.length));
           }
-          assignments.push(chars);
-          periodPos.push(Math.random() > 0.5 ? Math.floor(Math.random() * text.length) : -1);
-          bolds.push(Math.random() > 0.5);
+          var numPeriods = Math.random() < 0.4 ? 0 : (Math.random() < 0.65 ? 1 : 2);
+          var periods = [];
+          for (var p = 0; p < numPeriods; p++) {
+            var pos = Math.floor(Math.random() * (text.length - 1));
+            if (periods.indexOf(pos) === -1) periods.push(pos);
+          }
+          words.push({ chars: chars, periods: periods });
         });
-        config = { assignments: assignments, periodPos: periodPos, bolds: bolds };
-        try { sessionStorage.setItem('emNav5', JSON.stringify(config)); } catch(e) {}
+        config = { words: words };
+        try { sessionStorage.setItem('emNav6', JSON.stringify(config)); } catch(e) {}
       }
       document.querySelectorAll('.nav-links a').forEach(function(el, li) {
-        var text = el.textContent.replace(/\.$/, '');
-        var chars = config.assignments[li];
-        if (!chars) return;
-        var weight = config.bolds[li] ? 'bold' : 'normal';
-        var pPos = config.periodPos[li];
+        var word = config.words[li];
+        if (!word) return;
+        var text = el.textContent.trim().replace(/\.$/, '');
         var html = '';
         for (var i = 0; i < text.length; i++) {
-          var f = fonts[chars[i] % fonts.length] || fonts[0];
-          html += '<span style="font-family:' + f + ';font-weight:' + weight + '">' + text[i] + '</span>';
-          if (i === pPos) html += '<span style="font-family:' + f + ';font-weight:' + weight + '">.</span>';
+          var f = fonts[word.chars[i] % fonts.length] || fonts[0];
+          html += '<span style="font-family:' + f + ';font-weight:normal">' + text[i] + '</span>';
+          if (word.periods.indexOf(i) !== -1) {
+            html += '<span style="font-family:' + f + ';font-weight:normal">.</span>';
+          }
         }
         el.innerHTML = html;
       });
