@@ -529,34 +529,30 @@
       animLinks.forEach(function(el) {
         var charSpans = Array.from(el.querySelectorAll('span'));
         if (charSpans.length < 2) return;
-        var active = [];
-        function insertDot() {
+        function cycle() {
           var slot = Math.floor(Math.random() * (charSpans.length - 1));
           var after = charSpans[slot];
           var dot = document.createElement('span');
-          dot.style.cssText = after.style.cssText + ';opacity:0;transition:opacity 1.5s ease';
+          dot.style.fontFamily = after.style.fontFamily;
+          dot.style.fontStyle  = after.style.fontStyle;
+          dot.style.fontWeight = '300';
+          dot.style.opacity    = '0';
+          dot.style.transition = 'opacity 1.5s ease';
           dot.textContent = '.';
           after.parentNode.insertBefore(dot, after.nextSibling);
-          active.push(dot);
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() { dot.style.opacity = '1'; });
-          });
-          var visibleFor = 5000 + Math.random() * 7000;
+          void dot.offsetWidth; // force reflow so transition fires
+          dot.style.opacity = '1';
+          var hold = 5000 + Math.random() * 7000;
           setTimeout(function() {
             dot.style.opacity = '0';
-            active = active.filter(function(d) { return d !== dot; });
-            setTimeout(function() { if (dot.parentNode) dot.parentNode.removeChild(dot); }, 1600);
-          }, visibleFor);
+            setTimeout(function() {
+              if (dot.parentNode) dot.parentNode.removeChild(dot);
+              var gap = 2000 + Math.random() * 4000;
+              setTimeout(cycle, gap);
+            }, 1600);
+          }, hold);
         }
-        function step() {
-          if (active.length < 1) insertDot();
-          var r = Math.random();
-          var delay = r < 0.12 ? 6000 + Math.random() * 4000
-                    : r < 0.30 ? 1800 + Math.random() * 800
-                    :              2500 + Math.random() * 1500;
-          setTimeout(step, delay);
-        }
-        setTimeout(step, 500 + Math.random() * 4000);
+        setTimeout(cycle, 800 + Math.random() * 4000);
       });
     })();
   </script>
