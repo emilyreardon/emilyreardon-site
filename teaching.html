@@ -549,13 +549,13 @@
     (function() {
       var fonts = ["'Fraunces', serif", "'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Metamorphous', serif"];
       var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav3')); } catch(e) {}
+      try { config = JSON.parse(sessionStorage.getItem('emNav4')); } catch(e) {}
       if (!config) {
-        var t = Math.random() * 32;
         var stagger = 2.5, cycle = 32;
         var links = document.querySelectorAll('.nav-links a');
-        var assignments = [], periods = [];
+        var assignments = [], periods = [], bolds = [];
         links.forEach(function(el) {
+          var t = Math.random() * cycle;
           var text = el.textContent.replace(/\.$/, '');
           var chars = [];
           for (var i = 0; i < text.length; i++) {
@@ -564,20 +564,25 @@
           }
           assignments.push(chars);
           periods.push(Math.random() > 0.5);
+          bolds.push(Math.random() > 0.5);
         });
-        config = { assignments: assignments, periods: periods };
-        try { sessionStorage.setItem('emNav3', JSON.stringify(config)); } catch(e) {}
+        config = { assignments: assignments, periods: periods, bolds: bolds };
+        try { sessionStorage.setItem('emNav4', JSON.stringify(config)); } catch(e) {}
       }
       document.querySelectorAll('.nav-links a').forEach(function(el, li) {
         var text = el.textContent.replace(/\.$/, '');
         var chars = config.assignments[li];
         if (!chars) return;
+        var weight = config.bolds[li] ? 'bold' : 'normal';
         var html = '';
         for (var i = 0; i < text.length; i++) {
           var f = fonts[chars[i] % fonts.length] || fonts[0];
-          html += '<span style="font-family:' + f + ';font-weight:normal">' + text[i] + '</span>';
+          html += '<span style="font-family:' + f + ';font-weight:' + weight + '">' + text[i] + '</span>';
         }
-        if (config.periods[li]) html += '<span style="font-family:' + (fonts[chars[text.length - 1] % fonts.length] || fonts[0]) + ';font-weight:normal">.</span>';
+        if (config.periods[li]) {
+          var lf = fonts[chars[text.length - 1] % fonts.length] || fonts[0];
+          html += '<span style="font-family:' + lf + ';font-weight:' + weight + '">.</span>';
+        }
         el.innerHTML = html;
       });
     })();
