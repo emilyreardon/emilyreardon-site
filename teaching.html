@@ -260,11 +260,15 @@
       }
     }
 
+    /* ── Nav letter spacing ── */
+    .nav-links a span {
+      letter-spacing: 0.06em;
+    }
+
     /* ── Nav period animation ── */
     .nav-period {
       display: inline-block;
       opacity: 0;
-      animation: nav-dot-cycle 10s ease infinite;
     }
     @keyframes nav-dot-cycle {
       0%, 15%, 85%, 100% { opacity: 0; }
@@ -599,7 +603,7 @@
           if (pi !== -1) {
             var dur = (word.durs && word.durs[pi]) ? word.durs[pi] : '12s';
             var del = (word.dels && word.dels[pi]) ? word.dels[pi] : '-5s';
-            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;animation-duration:' + dur + ';animation-delay:' + del + '">.</span>';
+            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;animation:nav-dot-cycle ' + dur + ' ease ' + del + ' infinite">.</span>';
           }
         }
         el.innerHTML = html;
