@@ -612,7 +612,7 @@
           var aRect = parentLink.getBoundingClientRect();
           var anRect = anchor.getBoundingClientRect();
           dot.style.left = (anRect.right - aRect.left) + 'px';
-          dot.style.top = (anRect.top - aRect.top + anRect.height * 0.35) + 'px';
+          dot.style.top = (anRect.bottom - aRect.top - 5) + 'px';
           parentLink.appendChild(dot);
           requestAnimationFrame(function() {
             requestAnimationFrame(function() { dot.classList.add('visible'); });
