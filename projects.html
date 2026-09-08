@@ -1559,7 +1559,7 @@
       var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Fraunces', serif"];
       var styles = ["normal", "normal", "italic"];
       var stored;
-      try { stored = JSON.parse(sessionStorage.getItem('emNav9')); } catch(e) {}
+      try { stored = JSON.parse(sessionStorage.getItem('emNav10')); } catch(e) {}
       if (!stored) stored = {};
       var changed = false;
       var animLinks = [];
@@ -1584,44 +1584,38 @@
         el.style.visibility = 'visible';
         if (!isPDF) animLinks.push(el);
       });
-      if (changed) try { sessionStorage.setItem('emNav9', JSON.stringify(stored)); } catch(e) {}
+      if (changed) try { sessionStorage.setItem('emNav10', JSON.stringify(stored)); } catch(e) {}
       animLinks.forEach(function(el) {
         var charSpans = Array.from(el.querySelectorAll('span'));
-        var dots = [];
-        charSpans.forEach(function(span, i) {
-          if (i < charSpans.length - 1) {
-            var dot = document.createElement('span');
-            dot.style.cssText = span.style.cssText + ';opacity:0;transition:opacity 1.5s ease';
-            dot.textContent = '.';
-            span.parentNode.insertBefore(dot, span.nextSibling);
-            dots.push(dot);
-          }
-        });
-        if (!dots.length) return;
-        var active = new Set();
-        var maxActive = 1 + Math.floor(Math.random() * 2);
+        if (charSpans.length < 2) return;
+        var active = [];
+        function insertDot() {
+          var slot = Math.floor(Math.random() * (charSpans.length - 1));
+          var after = charSpans[slot];
+          var dot = document.createElement('span');
+          dot.style.cssText = after.style.cssText + ';opacity:0;transition:opacity 1.5s ease';
+          dot.textContent = '.';
+          after.parentNode.insertBefore(dot, after.nextSibling);
+          active.push(dot);
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() { dot.style.opacity = '1'; });
+          });
+          var visibleFor = 5000 + Math.random() * 7000;
+          setTimeout(function() {
+            dot.style.opacity = '0';
+            active = active.filter(function(d) { return d !== dot; });
+            setTimeout(function() { if (dot.parentNode) dot.parentNode.removeChild(dot); }, 1600);
+          }, visibleFor);
+        }
         function step() {
+          if (active.length < 1) insertDot();
           var r = Math.random();
-          if (active.size > 0 && (r < 0.4 || active.size >= maxActive)) {
-            var arr = Array.from(active);
-            var d = arr[Math.floor(Math.random() * arr.length)];
-            d.style.opacity = '0';
-            active.delete(d);
-          } else {
-            var avail = dots.filter(function(d) { return !active.has(d); });
-            if (avail.length) {
-              var d = avail[Math.floor(Math.random() * avail.length)];
-              d.style.opacity = '1';
-              active.add(d);
-            }
-          }
-          var r2 = Math.random();
-          var delay = r2 < 0.12 ? 6000 + Math.random() * 4000
-                    : r2 < 0.30 ? 1800 + Math.random() * 800
+          var delay = r < 0.12 ? 6000 + Math.random() * 4000
+                    : r < 0.30 ? 1800 + Math.random() * 800
                     :              2500 + Math.random() * 1500;
           setTimeout(step, delay);
         }
-        setTimeout(step, Math.random() * 4000);
+        setTimeout(step, 500 + Math.random() * 4000);
       });
     })();
   </script>
