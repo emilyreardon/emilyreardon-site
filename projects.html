@@ -60,7 +60,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,700&family=Josefin+Sans:wght@300;400&family=Poiret+One&family=Metamorphous&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,700&family=Josefin+Sans:wght@300;400&family=Poiret+One&family=Metamorphous&display=swap" rel="stylesheet">
   <style>
     /* Base */
     body {
@@ -136,7 +136,7 @@
 
     .nav-links a {
       visibility: hidden;
-      font-weight: normal;
+      font-weight: 300;
       text-decoration: none;
       color: #000;
       position: relative;
@@ -1587,9 +1587,9 @@
         var html = '';
         for (var i = 0; i < text.length; i++) {
           var f = fonts[word.chars[i] % fonts.length] || fonts[0];
-          html += '<span style="font-family:' + f + ';font-weight:normal">' + text[i] + '</span>';
+          html += '<span style="font-family:' + f + ';font-weight:300">' + text[i] + '</span>';
           if (word.periods.indexOf(i) !== -1) {
-            html += '<span style="font-family:' + f + ';font-weight:normal">.</span>';
+            html += '<span style="font-family:' + f + ';font-weight:300">.</span>';
           }
         }
         el.innerHTML = html;
