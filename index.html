@@ -581,7 +581,11 @@
         "'Poiret One', sans-serif",
         "'Fraunces', serif"
       ];
-      var styles = ["normal", "normal", "italic"];
+      var styles = [
+        "normal",
+        "normal",
+        "italic"
+      ];
       var config;
       try { config = JSON.parse(sessionStorage.getItem('emNav9')); } catch(e) {}
       if (!config) {
@@ -589,13 +593,13 @@
         var words = [];
         links.forEach(function(el) {
           var text = el.textContent.trim().replace(/\.$/, '');
-          var isPDF = (el.getAttribute('href') || '').indexOf('.pdf') !== -1;
+          var isCV = text.toUpperCase() === 'CV';
           var chars = [];
           for (var i = 0; i < text.length; i++) {
             chars.push(Math.floor(Math.random() * fonts.length));
           }
           var periods = [];
-          if (!isPDF) {
+          if (!isCV) {
             var numPeriods = Math.random() < 0.2 ? 0 : (Math.random() < 0.5 ? 1 : 2);
             var attempts = 0;
             while (periods.length < numPeriods && attempts < 20) {
@@ -616,9 +620,11 @@
         var html = '';
         for (var i = 0; i < text.length; i++) {
           var fi = word.chars[i] % fonts.length;
-          html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">' + text[i] + '</span>';
+          var f = fonts[fi];
+          var s = styles[fi];
+          html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">' + text[i] + '</span>';
           if (word.periods.indexOf(i) !== -1) {
-            html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">.</span>';
+            html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">.</span>';
           }
         }
         el.innerHTML = html;
