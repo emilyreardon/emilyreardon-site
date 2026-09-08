@@ -168,7 +168,6 @@
 
 
     .nav-links a {
-      visibility: hidden;
       font-weight: 300;
       text-decoration: none;
       color: #000;
@@ -576,60 +575,44 @@
   </script>
   <script>
     (function() {
-      var fonts = [
-        "'Josefin Sans', sans-serif",
-        "'Poiret One', sans-serif",
-        "'Fraunces', serif"
-      ];
-      var styles = [
-        "normal",
-        "normal",
-        "italic"
-      ];
-      var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav9')); } catch(e) {}
-      if (!config) {
-        var links = document.querySelectorAll('.nav-links a');
-        var words = [];
-        links.forEach(function(el) {
+      var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Fraunces', serif"];
+      var styles = ["normal", "normal", "italic"];
+      var stored;
+      try { stored = JSON.parse(sessionStorage.getItem('emNav9')); } catch(e) {}
+      if (!stored) stored = {};
+      var changed = false;
+      document.querySelectorAll('.nav-links a').forEach(function(el) {
+        var key = el.getAttribute('href') || el.textContent.trim();
+        var isPDF = key.indexOf('.pdf') !== -1;
+        if (!stored[key]) {
           var text = el.textContent.trim().replace(/\.$/, '');
-          var isCV = text.toUpperCase() === 'CV';
           var chars = [];
-          for (var i = 0; i < text.length; i++) {
-            chars.push(Math.floor(Math.random() * fonts.length));
-          }
+          for (var i = 0; i < text.length; i++) chars.push(Math.floor(Math.random() * fonts.length));
           var periods = [];
-          if (!isCV) {
-            var numPeriods = Math.random() < 0.2 ? 0 : (Math.random() < 0.5 ? 1 : 2);
-            var attempts = 0;
-            while (periods.length < numPeriods && attempts < 20) {
+          if (!isPDF) {
+            var numPeriods = Math.random() < 0.1 ? 0 : (Math.random() < 0.4 ? 1 : (Math.random() < 0.6 ? 2 : 3));
+            var tries = 0;
+            while (periods.length < numPeriods && tries < 30) {
               var pos = Math.floor(Math.random() * (text.length - 1));
               if (periods.indexOf(pos) === -1) periods.push(pos);
-              attempts++;
+              tries++;
             }
           }
-          words.push({ chars: chars, periods: periods });
-        });
-        config = { words: words };
-        try { sessionStorage.setItem('emNav9', JSON.stringify(config)); } catch(e) {}
-      }
-      document.querySelectorAll('.nav-links a').forEach(function(el, li) {
-        var word = config.words[li];
-        if (!word) return;
+          stored[key] = { chars: chars, periods: periods };
+          changed = true;
+        }
+        var word = stored[key];
         var text = el.textContent.trim().replace(/\.$/, '');
         var html = '';
         for (var i = 0; i < text.length; i++) {
-          var fi = word.chars[i] % fonts.length;
-          var f = fonts[fi];
-          var s = styles[fi];
-          html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">' + text[i] + '</span>';
-          if (word.periods.indexOf(i) !== -1) {
-            html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">.</span>';
-          }
+          var fi = word.chars[i % word.chars.length] % fonts.length;
+          html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">' + text[i] + '</span>';
+          if (word.periods.indexOf(i) !== -1) html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">.</span>';
         }
         el.innerHTML = html;
         el.style.visibility = 'visible';
       });
+      if (changed) try { sessionStorage.setItem('emNav9', JSON.stringify(stored)); } catch(e) {}
     })();
   </script>
 </body>
