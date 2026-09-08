@@ -288,10 +288,10 @@
 
   <nav class="nav-container" id="nav-container">
     <ul class="nav-links">
-      <li><a href="/projects.html">Projects.</a></li>
-      <li><a href="/writing.html">Writing.</a></li>
-      <li><a href="/teaching.html">Teaching.</a></li>
-      <li><a href="/about.html">About.</a></li>
+      <li><a href="/projects.html">Projects</a></li>
+      <li><a href="/writing.html">Writing</a></li>
+      <li><a href="/teaching.html">Teaching</a></li>
+      <li><a href="/about.html">About</a></li>
       <li><a href="/Emily Reardon_CV.pdf" target="_blank">CV</a></li>
     </ul>
   </nav>
@@ -545,15 +545,27 @@
     });
   }
 </script>
-
-
   <script>
     (function() {
       var fonts = ["'Fraunces', serif", "'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Metamorphous', serif"];
-      var shuffled = fonts.slice().sort(function(){ return Math.random() - 0.5; });
+      var config;
+      try { config = JSON.parse(sessionStorage.getItem('emNav')); } catch(e) {}
+      if (!config) {
+        var shuffled = fonts.slice().sort(function() { return Math.random() - 0.5; });
+        var links = document.querySelectorAll('.nav-links a');
+        var assignments = [], periods = [];
+        links.forEach(function(_, i) {
+          assignments.push(shuffled[i % shuffled.length]);
+          periods.push(Math.random() > 0.5);
+        });
+        config = { assignments: assignments, periods: periods };
+        try { sessionStorage.setItem('emNav', JSON.stringify(config)); } catch(e) {}
+      }
       document.querySelectorAll('.nav-links a').forEach(function(el, i) {
-        el.style.fontFamily = shuffled[i % shuffled.length];
+        el.style.fontFamily = config.assignments[i] || fonts[0];
         el.style.fontWeight = 'normal';
+        var text = el.textContent.replace(/\.$/, '');
+        el.textContent = config.periods[i] ? text + '.' : text;
       });
     })();
   </script>
