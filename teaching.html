@@ -551,26 +551,29 @@
     (function() {
       var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif"];
       var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav7')); } catch(e) {}
+      try { config = JSON.parse(sessionStorage.getItem('emNav8')); } catch(e) {}
       if (!config) {
         var links = document.querySelectorAll('.nav-links a');
         var words = [];
         links.forEach(function(el) {
           var text = el.textContent.trim().replace(/\.$/, '');
+          var isCV = text.toUpperCase() === 'CV';
           var chars = [];
           for (var i = 0; i < text.length; i++) {
             chars.push(Math.floor(Math.random() * fonts.length));
           }
-          var numPeriods = Math.random() < 0.4 ? 0 : (Math.random() < 0.65 ? 1 : 2);
           var periods = [];
-          for (var p = 0; p < numPeriods; p++) {
-            var pos = Math.floor(Math.random() * (text.length - 1));
-            if (periods.indexOf(pos) === -1) periods.push(pos);
+          if (!isCV) {
+            var numPeriods = Math.random() < 0.4 ? 0 : (Math.random() < 0.65 ? 1 : 2);
+            for (var p = 0; p < numPeriods; p++) {
+              var pos = Math.floor(Math.random() * (text.length - 1));
+              if (periods.indexOf(pos) === -1) periods.push(pos);
+            }
           }
           words.push({ chars: chars, periods: periods });
         });
         config = { words: words };
-        try { sessionStorage.setItem('emNav7', JSON.stringify(config)); } catch(e) {}
+        try { sessionStorage.setItem('emNav8', JSON.stringify(config)); } catch(e) {}
       }
       document.querySelectorAll('.nav-links a').forEach(function(el, li) {
         var word = config.words[li];
