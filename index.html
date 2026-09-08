@@ -61,7 +61,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,700&family=Josefin+Sans:wght@300;400&family=Poiret+One&family=Metamorphous&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300&family=Josefin+Sans:wght@300&family=Poiret+One&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: Helvetica, Arial, sans-serif;
@@ -576,9 +576,18 @@
   </script>
   <script>
     (function() {
-      var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif"];
+      var fonts = [
+        "'Josefin Sans', sans-serif",
+        "'Poiret One', sans-serif",
+        "'Fraunces', serif"
+      ];
+      var styles = [
+        "normal",
+        "normal",
+        "italic"
+      ];
       var config;
-      try { config = JSON.parse(sessionStorage.getItem('emNav8')); } catch(e) {}
+      try { config = JSON.parse(sessionStorage.getItem('emNav9')); } catch(e) {}
       if (!config) {
         var links = document.querySelectorAll('.nav-links a');
         var words = [];
@@ -591,16 +600,18 @@
           }
           var periods = [];
           if (!isCV) {
-            var numPeriods = Math.random() < 0.4 ? 0 : (Math.random() < 0.65 ? 1 : 2);
-            for (var p = 0; p < numPeriods; p++) {
+            var numPeriods = Math.random() < 0.2 ? 0 : (Math.random() < 0.5 ? 1 : 2);
+            var attempts = 0;
+            while (periods.length < numPeriods && attempts < 20) {
               var pos = Math.floor(Math.random() * (text.length - 1));
               if (periods.indexOf(pos) === -1) periods.push(pos);
+              attempts++;
             }
           }
           words.push({ chars: chars, periods: periods });
         });
         config = { words: words };
-        try { sessionStorage.setItem('emNav8', JSON.stringify(config)); } catch(e) {}
+        try { sessionStorage.setItem('emNav9', JSON.stringify(config)); } catch(e) {}
       }
       document.querySelectorAll('.nav-links a').forEach(function(el, li) {
         var word = config.words[li];
@@ -608,10 +619,12 @@
         var text = el.textContent.trim().replace(/\.$/, '');
         var html = '';
         for (var i = 0; i < text.length; i++) {
-          var f = fonts[word.chars[i] % fonts.length] || fonts[0];
-          html += '<span style="font-family:' + f + ';font-weight:300">' + text[i] + '</span>';
+          var fi = word.chars[i] % fonts.length;
+          var f = fonts[fi];
+          var s = styles[fi];
+          html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">' + text[i] + '</span>';
           if (word.periods.indexOf(i) !== -1) {
-            html += '<span style="font-family:' + f + ';font-weight:300">.</span>';
+            html += '<span style="font-family:' + f + ';font-style:' + s + ';font-weight:300">.</span>';
           }
         }
         el.innerHTML = html;
