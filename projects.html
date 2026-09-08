@@ -1574,10 +1574,18 @@
       function scheduleDot(anchor, initialDelay) {
         var holdMs = 1800 + Math.floor(Math.random() * 1200);
         var waitMs = 8000 + Math.floor(Math.random() * 12000);
+        var parentLink = anchor.parentNode;
         function insertDot() {
           var dot = document.createElement('span');
           dot.className = 'period-dot ' + SIZES[Math.floor(Math.random() * SIZES.length)];
-          anchor.parentNode.insertBefore(dot, anchor.nextSibling);
+          // absolute so it doesn't shift sibling nav words
+          dot.style.position = 'absolute';
+          dot.style.pointerEvents = 'none';
+          var aRect = parentLink.getBoundingClientRect();
+          var anRect = anchor.getBoundingClientRect();
+          dot.style.left = (anRect.right - aRect.left) + 'px';
+          dot.style.top = (anRect.top - aRect.top + anRect.height * 0.35) + 'px';
+          parentLink.appendChild(dot);
           requestAnimationFrame(function() {
             requestAnimationFrame(function() { dot.classList.add('visible'); });
           });
