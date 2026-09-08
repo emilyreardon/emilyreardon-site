@@ -1,0 +1,30 @@
+name: Ensure Pages is enabled
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  pages-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable GitHub Pages if needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATUS=$(gh api /repos/${{ github.repository }}/pages --jq '.status' 2>/dev/null || echo "disabled")
+          if [ "$STATUS" = "disabled" ] || [ -z "$STATUS" ]; then
+            echo '{"source":{"branch":"main","path":"/"}}' | gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/pages \
+              --input -
+            echo '{"cname":"emilyreardon.org"}' | gh api \
+              --method PUT \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/pages \
+              --input -
+            echo "Pages re-enabled."
+          else
+            echo "Pages is active (status: $STATUS). Nothing to do."
+          fi
