@@ -558,12 +558,12 @@
         var key = el.getAttribute('href') || el.textContent.trim();
         var isPDF = key.indexOf('.pdf') !== -1;
         if (!stored[key]) {
-          var text = el.textContent.trim().replace(/\.$/, '');
+          var text = el.textContent.trim().replace(/\.$/g, '');
           var chars = [];
           for (var i = 0; i < text.length; i++) chars.push(Math.floor(Math.random() * fonts.length));
           var periods = [];
           if (!isPDF) {
-            var numPeriods = Math.random() < 0.1 ? 0 : (Math.random() < 0.4 ? 1 : (Math.random() < 0.6 ? 2 : 3));
+            var numPeriods = 2 + Math.floor(Math.random() * 2);
             var tries = 0;
             while (periods.length < numPeriods && tries < 30) {
               var pos = Math.floor(Math.random() * (text.length - 1));
@@ -575,17 +575,26 @@
           changed = true;
         }
         var word = stored[key];
-        var text = el.textContent.trim().replace(/\.$/, '');
+        var text = el.textContent.trim().replace(/\.$/g, '');
         var html = '';
         for (var i = 0; i < text.length; i++) {
           var fi = word.chars[i % word.chars.length] % fonts.length;
           html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">' + text[i] + '</span>';
-          if (word.periods.indexOf(i) !== -1) html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">.</span>';
+          if (!isPDF && word.periods && word.periods.indexOf(i) !== -1) {
+            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;opacity:0;transition:opacity 1.8s ease">.</span>';
+          }
         }
         el.innerHTML = html;
         el.style.visibility = 'visible';
       });
       if (changed) try { sessionStorage.setItem('emNav9', JSON.stringify(stored)); } catch(e) {}
+      document.querySelectorAll('.nav-period').forEach(function(dot) {
+        var visibleFor = 5000 + Math.random() * 9000;
+        var hiddenFor  = 6000 + Math.random() * 12000;
+        function show() { dot.style.opacity = '1'; setTimeout(hide, visibleFor + Math.random() * 4000); }
+        function hide() { dot.style.opacity = '0'; setTimeout(show, hiddenFor  + Math.random() * 6000); }
+        setTimeout(show, 1000 + Math.random() * 8000);
+      });
     })();
   </script>
 </body>
