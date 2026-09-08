@@ -304,7 +304,18 @@
         font-size: 0.88rem;
       }
     }
-</style>
+
+    /* ── Nav period animation ── */
+    .nav-period {
+      display: inline-block;
+      opacity: 0;
+      animation: nav-dot-cycle 10s ease infinite;
+    }
+    @keyframes nav-dot-cycle {
+      0%, 15%, 85%, 100% { opacity: 0; }
+      35%, 65%            { opacity: 1; }
+    }
+    </style>
 </head>
 <body>
 
@@ -587,10 +598,9 @@
       var fonts = ["'Josefin Sans', sans-serif", "'Poiret One', sans-serif", "'Fraunces', serif"];
       var styles = ["normal", "normal", "italic"];
       var stored;
-      try { stored = JSON.parse(sessionStorage.getItem('emNav10')); } catch(e) {}
+      try { stored = JSON.parse(sessionStorage.getItem('emNav12')); } catch(e) {}
       if (!stored) stored = {};
       var changed = false;
-      var animLinks = [];
       document.querySelectorAll('.nav-links a').forEach(function(el) {
         var key = el.getAttribute('href') || el.textContent.trim();
         var isPDF = key.indexOf('.pdf') !== -1;
@@ -598,7 +608,21 @@
           var text = el.textContent.trim().replace(/\.$/g, '');
           var chars = [];
           for (var i = 0; i < text.length; i++) chars.push(Math.floor(Math.random() * fonts.length));
-          stored[key] = { chars: chars };
+          var periods = [], durs = [], dels = [];
+          if (!isPDF) {
+            var numP = 1 + Math.floor(Math.random() * 2);
+            var tries = 0;
+            while (periods.length < numP && tries < 20) {
+              var pos = Math.floor(Math.random() * (text.length - 1));
+              if (periods.indexOf(pos) === -1) {
+                periods.push(pos);
+                durs.push((8 + Math.floor(Math.random() * 9)) + 's');
+                dels.push('-' + Math.floor(Math.random() * 10) + 's');
+              }
+              tries++;
+            }
+          }
+          stored[key] = { chars: chars, periods: periods, durs: durs, dels: dels };
           changed = true;
         }
         var word = stored[key];
@@ -607,40 +631,17 @@
         for (var i = 0; i < text.length; i++) {
           var fi = word.chars[i % word.chars.length] % fonts.length;
           html += '<span style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300">' + text[i] + '</span>';
+          var pi = (!isPDF && word.periods) ? word.periods.indexOf(i) : -1;
+          if (pi !== -1) {
+            var dur = (word.durs && word.durs[pi]) ? word.durs[pi] : '12s';
+            var del = (word.dels && word.dels[pi]) ? word.dels[pi] : '-5s';
+            html += '<span class="nav-period" style="font-family:' + fonts[fi] + ';font-style:' + styles[fi] + ';font-weight:300;animation-duration:' + dur + ';animation-delay:' + del + '">.</span>';
+          }
         }
         el.innerHTML = html;
         el.style.visibility = 'visible';
-        if (!isPDF) animLinks.push(el);
       });
-      if (changed) try { sessionStorage.setItem('emNav10', JSON.stringify(stored)); } catch(e) {}
-      animLinks.forEach(function(el) {
-        var charSpans = Array.from(el.querySelectorAll('span'));
-        if (charSpans.length < 2) return;
-        function cycle() {
-          var slot = Math.floor(Math.random() * (charSpans.length - 1));
-          var after = charSpans[slot];
-          var dot = document.createElement('span');
-          dot.style.fontFamily = after.style.fontFamily;
-          dot.style.fontStyle  = after.style.fontStyle;
-          dot.style.fontWeight = '300';
-          dot.style.opacity    = '0';
-          dot.style.transition = 'opacity 1.5s ease';
-          dot.textContent = '.';
-          after.parentNode.insertBefore(dot, after.nextSibling);
-          void dot.offsetWidth; // force reflow so transition fires
-          dot.style.opacity = '1';
-          var hold = 5000 + Math.random() * 7000;
-          setTimeout(function() {
-            dot.style.opacity = '0';
-            setTimeout(function() {
-              if (dot.parentNode) dot.parentNode.removeChild(dot);
-              var gap = 2000 + Math.random() * 4000;
-              setTimeout(cycle, gap);
-            }, 1600);
-          }, hold);
-        }
-        setTimeout(cycle, 800 + Math.random() * 4000);
-      });
+      if (changed) try { sessionStorage.setItem('emNav12', JSON.stringify(stored)); } catch(e) {}
     })();
   </script>
 </body>
