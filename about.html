@@ -514,7 +514,7 @@
 
       function scheduleDot(anchor, initialDelay) {
         var holdMs = 1800 + Math.floor(Math.random() * 1200);
-        var waitMs = 5000 + Math.floor(Math.random() * 9000);
+        var waitMs = 8000 + Math.floor(Math.random() * 12000);
         function insertDot() {
           var dot = document.createElement('span');
           dot.className = 'period-dot ' + SIZES[Math.floor(Math.random() * SIZES.length)];
