@@ -602,19 +602,10 @@
       function scheduleDot(anchor, initialDelay) {
         var holdMs = 1800 + Math.floor(Math.random() * 1200);
         var waitMs = 8000 + Math.floor(Math.random() * 12000);
-        var parentLink = anchor.parentNode;
         function insertDot() {
           var dot = document.createElement('span');
           dot.className = 'period-dot ' + SIZES[Math.floor(Math.random() * SIZES.length)];
-          // absolute so it doesn't shift sibling nav words
-          dot.style.position = 'absolute';
-          dot.style.pointerEvents = 'none';
-          var aRect = parentLink.getBoundingClientRect();
-          var anRect = anchor.getBoundingClientRect();
-          dot.style.left = (anRect.right - aRect.left) + 'px';
-          dot.style.top = 'auto';
-          dot.style.bottom = '1px';
-          parentLink.appendChild(dot);
+          anchor.parentNode.insertBefore(dot, anchor.nextSibling);
           requestAnimationFrame(function() {
             requestAnimationFrame(function() { dot.classList.add('visible'); });
           });
@@ -658,6 +649,10 @@
         }
         el.innerHTML = html;
         el.style.visibility = 'visible';
+        // lock width so inline dots don't shift sibling nav words
+        el.style.whiteSpace = 'nowrap';
+        el.style.width = el.getBoundingClientRect().width + 'px';
+        el.style.overflow = 'visible';
         if (!isPDF && word.periods) {
           var letterSpans = el.querySelectorAll('span');
           var wordBase = Math.floor(Math.random() * 1500);
